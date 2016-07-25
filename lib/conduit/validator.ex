@@ -68,4 +68,5 @@ defmodule Conduit.Validator do
       end
     end
   end
+
 end

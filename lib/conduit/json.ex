@@ -81,6 +81,7 @@ defmodule Conduit.JSON do
     quote do
       def decode!(data) when is_binary(data) do
         Poison.decode!(data, as: __MODULE__.__shape__())
+        |> Conduit.Nilifier.nilify
         |> __MODULE__.validate!
       end
     end
