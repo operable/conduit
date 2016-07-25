@@ -20,4 +20,31 @@ defmodule Conduit.ValidateValuesTest do
   # String values
   value_test "Validating strings works", Messages.StringMessage, [nil, "abc", [1, 0], ["abc", "def"]]
 
+  test "Validation works with nil non-required fields" do
+    m = %Messages.IntMessageRelaxed{}
+    # Non-required fields should validate when nil
+    Messages.IntMessageRelaxed.validate!(m)
+
+    # Wrong type
+    m = %{m | v: "123"}
+    assert_raise Conduit.ValidationError, fn -> Messages.IntMessageRelaxed.validate!(m) end
+
+    # Correct type
+    m = %{m | v: 123}
+    Messages.IntMessageRelaxed.validate!(m)
+
+    # Wrong type
+    m = %{m | va: "123"}
+    assert_raise Conduit.ValidationError, fn -> Messages.IntMessageRelaxed.validate!(m) end
+
+    # Wrong types in array
+    m = %{m | va: [true, "123"]}
+    assert_raise Conduit.ValidationError, fn -> Messages.IntMessageRelaxed.validate!(m) end
+
+    # Correct types in array
+    m = %{m | va: [1,2]}
+    Messages.IntMessageRelaxed.validate!(m)
+
+  end
+
 end

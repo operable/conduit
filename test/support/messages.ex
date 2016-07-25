@@ -7,6 +7,15 @@ defmodule Conduit.Test.Support.Messages.IntMessage do
 
 end
 
+defmodule Conduit.Test.Support.Messages.IntMessageRelaxed do
+
+  use Conduit
+
+  field :v, :integer
+  field :va, [array: :integer]
+
+end
+
 defmodule Conduit.Test.Support.Messages.FloatMessage do
 
   use Conduit
