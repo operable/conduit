@@ -67,4 +67,13 @@ defmodule Conduit.EncodeTest do
     assert Group.decode!(data) === group
   end
 
+  test "Poison options are supported" do
+    group = Poison.encode!(%{name: "burgermeisters", members: [%{first_name: "Wendy", last_name: "Burger",
+                                                                 profile: %{nickname: "wendinator"}},
+                                                               %{first_name: "Burger", last_name: "King",
+                                                                 profile: %{}}]}) |> Group.decode!
+    data = Group.encode!(group, pretty: true)
+    assert String.contains?(data, "\n")
+  end
+
 end

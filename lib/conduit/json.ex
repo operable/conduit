@@ -36,7 +36,7 @@ defmodule Conduit.JSON do
     omit_empty_fields = Enum.filter(fields, &(Keyword.get(&1, :omit_empty, false)))
                         |> Enum.map(&(Keyword.get(&1, :name)))
     quote do
-      def encode!(%__MODULE__{}=data) do
+      def encode!(%__MODULE__{}=data, opts \\ []) do
         data = __MODULE__.validate!(data)
         data = Enum.reduce(unquote(omit_empty_fields), data,
           fn(field, data) ->
@@ -47,7 +47,7 @@ defmodule Conduit.JSON do
                 data
             end
           end)
-        Poison.encode!(data)
+        Poison.encode!(data, opts)
       end
     end
   end
@@ -79,8 +79,9 @@ defmodule Conduit.JSON do
 
   defp build_decoder() do
     quote do
-      def decode!(data) when is_binary(data) do
-        Poison.decode!(data, as: __MODULE__.__shape__())
+      def decode!(data, opts \\ []) when is_binary(data) do
+        opts = [{:as, __MODULE__.__shape__()}|opts]
+        Poison.decode!(data, opts)
         |> Conduit.Nilifier.nilify
         |> __MODULE__.validate!
       end
