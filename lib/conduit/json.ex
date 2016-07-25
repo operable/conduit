@@ -1,6 +1,38 @@
 defmodule Conduit.JSON do
 
-  def build_encoder(fields) do
+  def generate(object_refs, fields) do
+    quote do
+      # Generate __refs__ function
+      unquote(build_refs(object_refs))
+
+      # Generate __shape__ function
+      unquote(build_shape())
+
+      # JSON encoder function
+      unquote(build_encoder(fields))
+
+      # JSON decoder function
+      unquote(build_decoder())
+
+    end
+  end
+
+  defp build_refs([]) do
+    quote do
+      def __refs__(), do: nil
+    end
+  end
+  defp build_refs(fields) do
+    refs = Enum.map(fields, &({Keyword.get(&1, :name),
+                               module: Keyword.get(&1, :module),
+                               array: Keyword.get(&1, :array)}))
+    quote do
+      def __refs__(), do: unquote(refs)
+    end
+  end
+
+
+  defp build_encoder(fields) do
     omit_empty_fields = Enum.filter(fields, &(Keyword.get(&1, :omit_empty, false)))
                         |> Enum.map(&(Keyword.get(&1, :name)))
     quote do
@@ -20,42 +52,38 @@ defmodule Conduit.JSON do
     end
   end
 
-  def build_decode_shape([]) do
+  defp build_shape() do
     quote do
-      def __shape__() do
-        %__MODULE__{}
+      defp add_shape_field({name, props}, shape) do
+        objmod = Keyword.get(props, :module)
+        objshape = case Keyword.get(props, :array) || false do
+                     false ->
+                       objmod.__shape__()
+                     true ->
+                       [objmod.__shape__()]
+                   end
+        Map.put(shape, name, objshape)
       end
-    end
-  end
-  def build_decode_shape(fields) do
-    quote do
+
       def __shape__() do
-        %__MODULE__{}
-        |> unquote(__MODULE__).add_refs_shape(unquote(fields))
+        shape = %__MODULE__{}
+        case __MODULE__.__refs__() do
+          nil ->
+            shape
+          refs ->
+            Enum.reduce(refs, shape, &add_shape_field/2)
+        end
       end
     end
   end
 
-  def build_decoder() do
+  defp build_decoder() do
     quote do
       def decode!(data) when is_binary(data) do
         Poison.decode!(data, as: __MODULE__.__shape__())
         |> __MODULE__.validate!
       end
     end
-  end
-
-  def add_refs_shape(target, []), do: target
-  def add_refs_shape(target, [field|fields]) do
-    field_name = Keyword.get(field, :name)
-    objmod = Keyword.get(field, :module)
-    target = case Keyword.get(field, :array) do
-               true ->
-                 Map.put(target, field_name, [objmod.__shape__()])
-               false ->
-                 Map.put(target, field_name, objmod.__shape__())
-             end
-    add_refs_shape(target, fields)
   end
 
 end

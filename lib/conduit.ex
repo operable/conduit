@@ -2,8 +2,6 @@ defmodule Conduit do
 
   alias Conduit.FieldTypes
   alias Conduit.FieldProperties
-  alias Conduit.JSON
-  alias Conduit.Util
 
   defmacro __using__(_) do
     quote do
@@ -34,49 +32,15 @@ defmodule Conduit do
 
   defmacro __before_compile__(env) do
     all_fields = Module.get_attribute(env.module, :fields)
-    required_fields = Util.get_required_fields(env.module)
-                      |> Enum.map(&(Keyword.get(&1, :name)))
     object_refs = Module.get_attribute(env.module, :object_refs)
     quote do
       defstruct @struct_fields
 
-      def validate(%__MODULE__{}=data) do
-        errors = enforce_required([], data) |> enforce_types(data)
-        case errors do
-          [] ->
-            :ok
-          errors ->
-            %Conduit.ValidationError{value: data, errors: errors}
-        end
-      end
+      # Generate field and struct validation logic
+      unquote(Conduit.Validator.generate(all_fields))
 
-      def validate!(data) do
-        case validate(data) do
-          :ok ->
-            data
-          error ->
-            raise error
-        end
-      end
-
-      # JSON decode "shape" for object references
-      unquote(JSON.build_decode_shape(object_refs))
-
-      # Object refs
-      unquote(build_refs(object_refs))
-
-      # JSON encoder function
-      unquote(JSON.build_encoder(all_fields))
-
-      # JSON decoder function
-      unquote(JSON.build_decoder())
-
-      # Enforce required fields
-      unquote(build_enforce_required(required_fields))
-
-      # Enforce field types
-      unquote(build_enforce_types(all_fields))
-
+      # Generate JSON encoder/decoder logic
+      unquote(Conduit.JSON.generate(object_refs, all_fields))
     end
   end
 
@@ -92,58 +56,6 @@ defmodule Conduit do
   end
   defp maybe_add_object_ref_field(_, _) do
     nil
-  end
-
-  defp build_enforce_required(fields) do
-    quote do
-      defp enforce_required(errors, data) do
-        Enum.reduce(unquote(fields), errors,
-          fn(fname, errors) ->
-            case FieldProperties.enforce(:required, Map.get(data, fname)) do
-              nil ->
-                errors
-              error ->
-                [%{error | field: fname}|errors]
-            end end)
-      end
-    end
-  end
-
-  defp build_refs([]) do
-    quote do
-      def __refs__(), do: nil
-    end
-  end
-  defp build_refs(fields) do
-    refs = Enum.map(fields, &({Keyword.get(&1, :name),
-                               module: Keyword.get(&1, :module),
-                               array: Keyword.get(&1, :array)}))
-    quote do
-      def __refs__(), do: unquote(refs)
-    end
-  end
-
-
-  defp build_enforce_types([]) do
-    quote do
-      defp enforce_types(errors, _), do: errors
-    end
-  end
-  defp build_enforce_types(fields) do
-    quote location: :keep do
-      defp enforce_types(errors, data) do
-        Enum.reduce(unquote(fields), errors,
-          fn(fdef, errors) ->
-            fname = Keyword.get(fdef, :name)
-            ftype = Keyword.get(fdef, :type)
-            case FieldTypes.enforce(ftype, Map.get(data, fname)) do
-              nil ->
-                errors
-              error ->
-                [%{error | field: fname}|errors]
-            end end)
-      end
-    end
   end
 
   defp add_obj_prefix({:__aliases__, _, _}=type) do
