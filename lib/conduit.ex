@@ -76,5 +76,5 @@ defmodule Conduit do
     {_, normalized} = normalize_type(type)
     {ot, [array: normalized]}
   end
-  defp normalize_type(type) when is_atom(type), do: {type, type}
+  defp normalize_type(type), do: {type, type}
 end

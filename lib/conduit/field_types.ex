@@ -12,7 +12,14 @@ defmodule Conduit.FieldTypes do
     validate_option!(type)
   end
   def validate_option!(type) when is_atom(type) do
-    :ok
+    name = Atom.to_string(type)
+    # Regex is proxy for valid module name
+    case Regex.match?(~r/^[A-Z].*/, name) do
+      true ->
+        :ok
+      false ->
+        raise CompileError, description: type_option_error(type)
+    end
   end
   def validate_option!(type) do
     raise CompileError, description: type_option_error(type)
@@ -45,14 +52,6 @@ defmodule Conduit.FieldTypes do
     Conduit.FieldTypeError.new(type: type, value: value)
   end
 
-  defp type_option_error(type) do
-    """
-Invalid field type #{inspect type}.
-Valid built-in field types: :string, :integer, :float, :number, :bool, or Elixir module name.
-Valid composite field types: [array: type] or [object: type].
-"""
-  end
-
   defp enforce_composite_type(type, v, errors) do
     case enforce(type, v) do
       nil ->
@@ -61,5 +60,14 @@ Valid composite field types: [array: type] or [object: type].
         {:halt, [error|errors]}
     end
   end
+
+  defp type_option_error(type) do
+    """
+Invalid field type #{inspect type}.
+Valid built-in field types: :string, :integer, :float, :number, or :bool.
+Valid composite field types: [array: type] or [object: type] where is a built-in or Elixir module name.
+"""
+  end
+
 
 end

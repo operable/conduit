@@ -9,6 +9,8 @@ defmodule Conduit.FieldPropertyError do
     case property do
       :required ->
         "Value for required field '#{fname}' is missing."
+      [enum: values] ->
+        "Value for field #{fname} is '#{value}'. Allowed values are #{inspect values}."
       _ ->
         "Unknown property error for field '#{fname}' Value is #{inspect value}."
     end

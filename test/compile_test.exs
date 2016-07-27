@@ -26,4 +26,29 @@ defmodule Conduit.CompileTest do
     assert_raise CompileError, fn -> Code.compile_quoted(quoted) end
   end
 
+  test "Inconsistent enums are detected" do
+    quoted = quote do
+      defmodule Foo2 do
+        use Conduit
+
+        field :name, :string, enum: ["a", 1,"c"]
+
+      end
+    end
+
+    assert_raise CompileError, fn -> Code.compile_quoted(quoted) end
+  end
+
+  test "Invalid enum data types are detected" do
+    quoted = quote do
+      defmodule Foo3 do
+        use Conduit
+
+        field :name, :string, enum: [%{"a" => 1}]
+      end
+    end
+
+    assert_raise CompileError, fn -> Code.compile_quoted(quoted) end
+  end
+
 end

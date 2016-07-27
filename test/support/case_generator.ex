@@ -10,18 +10,26 @@ defmodule Conduit.Test.Support.CaseGenerator do
     end
   end
 
-  defmacro value_test(desc, module, [v_no, v_yes, va_no, va_yes]) do
+  defmacro value_test(desc, module, [v_no, v_yes, ve_no, ve_yes, va_no, va_yes]) do
     quote location: :keep do
       test "#{unquote(desc)}" do
         m = %unquote(module){}
-        # both fields are blank
+        # all fields are blank
         assert_raise Conduit.ValidationError, fn -> unquote(module).validate!(m) end
 
         m = %{m | v: unquote(v_no)}
-        # v is wrong type; na is still blank
+        # v is wrong type; va is still blank
         assert_raise Conduit.ValidationError, fn -> unquote(module).validate!(m) end
 
         m = %{m | v: unquote(v_yes)}
+        # va is still blank
+        assert_raise Conduit.ValidationError, fn -> unquote(module).validate!(m) end
+
+        m = %{m | ve: unquote(ve_no)}
+        # ve is wrong type; va is still blank
+        assert_raise Conduit.ValidationError, fn -> unquote(module).validate!(m) end
+
+        m = %{m | ve: unquote(ve_yes)}
         # va is still blank
         assert_raise Conduit.ValidationError, fn -> unquote(module).validate!(m) end
 
