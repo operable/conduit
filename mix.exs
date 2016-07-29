@@ -25,7 +25,8 @@ defmodule Conduit.Mixfile do
   defp elixirc_paths(_),     do: ["lib"]
 
   defp deps do
-    [{:poison, "~> 2.2.0"}]
+    [{:poison, "~> 2.2.0"},
+     {:mix_test_watch, "~> 0.2.6", only: [:test, :dev]}]
   end
 
 end
