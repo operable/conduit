@@ -3,6 +3,7 @@ defmodule Conduit.EncodeTest do
 
   alias Conduit.Test.Support.Messages.User
   alias Conduit.Test.Support.Messages.Group
+  alias Conduit.Test.Support.Messages.MapMessage
 
   test "Missing required field raises ValidationError" do
     data = Poison.encode!(%{first_name: "Wendy"})
@@ -74,6 +75,14 @@ defmodule Conduit.EncodeTest do
                                                                  profile: %{}}]}) |> Group.decode!
     data = Group.encode!(group, pretty: true)
     assert String.contains?(data, "\n")
+  end
+
+  test "Empty map fields are decoded" do
+    data = Poison.encode!(%{v: %{}, va: [%{}]})
+    m = MapMessage.decode!(data)
+    assert m.v == %{}
+    assert m.va == [%{}]
+    assert MapMessage.encode!(m) == data
   end
 
 end

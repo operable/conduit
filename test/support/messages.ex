@@ -58,6 +58,25 @@ defmodule Conduit.Test.Support.Messages.NumberMessage do
 
 end
 
+defmodule Conduit.Test.Support.Messages.MapMessage do
+
+  use Conduit
+
+  field :v, :map, required: true
+  field :va, [array: :map]
+
+end
+
+defmodule Conduit.Test.Support.Messages.ArrayMessage do
+
+  use Conduit
+
+  field :v, :array, required: true
+  field :va, :array
+
+end
+
+
 defmodule Conduit.Test.Support.Messages.User do
 
   use Conduit

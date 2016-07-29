@@ -20,6 +20,65 @@ defmodule Conduit.ValidateValuesTest do
   # String values
   value_test "Validating strings works", Messages.StringMessage, [nil, "abc", "123", "a", [1, 0], ["abc", "def"]]
 
+  test "Validating maps works" do
+    m = %Messages.MapMessage{}
+
+    # v is empty
+    assert_raise Conduit.ValidationError, fn -> Messages.MapMessage.validate!(m) end
+
+    # v is wrong type
+    m = %{m | v: 123}
+    assert_raise Conduit.ValidationError, fn -> Messages.MapMessage.validate!(m) end
+
+    # v is correct
+    m = %{m | v: %{}}
+    Messages.MapMessage.validate!(m)
+
+    # va is wrong type
+    m = %{m | va: ["a", "b"]}
+    assert_raise Conduit.ValidationError, fn -> Messages.MapMessage.validate!(m) end
+
+    # va is still wrong type
+    m = %{m | va: %{}}
+    assert_raise Conduit.ValidationError, fn -> Messages.MapMessage.validate!(m) end
+
+    # va is correct type
+    m = %{m | va: [%{}]}
+    Messages.MapMessage.validate!(m)
+  end
+
+  test "Map field contents are untyped" do
+    m = %Messages.MapMessage{v: %{"abc" => 123, abc: true}}
+    Messages.MapMessage.validate!(m)
+    m = %{m | v: %{0.123 => %{}}}
+    Messages.MapMessage.validate!(m)
+  end
+
+  test "Validating untyped arrays works" do
+    m = %Messages.ArrayMessage{}
+
+    # v is empty
+    assert_raise Conduit.ValidationError, fn -> Messages.ArrayMessage.validate!(m) end
+
+    # v is wrong type
+    m = %{m | v: true}
+    assert_raise Conduit.ValidationError, fn -> Messages.ArrayMessage.validate!(m) end
+
+    # v is right type
+    m = %{m | v: [1,2,3,"red","green","blue",true]}
+    Messages.ArrayMessage.validate!(m)
+    m = %{m | v: []}
+    Messages.ArrayMessage.validate!(m)
+
+    # va is wrong type
+    m = %{m | va: %{}}
+    assert_raise Conduit.ValidationError, fn -> Messages.ArrayMessage.validate!(m) end
+
+    # va is correct type
+    m = %{m | va: [%{}, "abc", 0.1]}
+    Messages.ArrayMessage.validate!(m)
+  end
+
   test "Validation works with nil non-required fields" do
     m = %Messages.IntMessageRelaxed{}
     # Non-required fields should validate when nil
