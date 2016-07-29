@@ -34,14 +34,7 @@ defmodule Conduit.FieldTypes do
   def enforce(:number, v) when is_integer(v) or is_float(v), do: nil
   def enforce(:bool, v) when is_boolean(v), do: nil
   def enforce(:array, v) when is_list(v), do: nil
-  def enforce(:map, v) when is_map(v) do
-    case Map.get(v, :__struct__, nil) do
-      nil ->
-        nil
-      _ ->
-        Conduit.FieldTypeError.new(type: :map, value: v)
-    end
-  end
+  def enforce(:map, v) when is_map(v), do: nil
   def enforce([array: type], values) when is_list(values) do
     case Enum.reduce_while(values, [], &(enforce_composite_type(type, &1, &2))) do
       [] ->
