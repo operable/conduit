@@ -5,17 +5,7 @@ defmodule Conduit.Nilifier do
       nil
     else
       objmod = obj.__struct__
-      case objmod.__refs__() do
-        nil ->
-          obj
-        refs ->
-          obj = Enum.reduce(refs, obj, &nilify_field/2)
-          if empty_ref?(obj) do
-            nil
-          else
-            obj
-          end
-      end
+      obj |> nilify_fields(objmod.__refs__())
     end
   end
   def nilify(obj) when is_list(obj) do
@@ -32,8 +22,20 @@ defmodule Conduit.Nilifier do
   end
   def nilify(obj), do: obj
 
-  defp nilify_field({name, props}, obj) do
-    objmod = Keyword.get(props, :module)
+  defp nilify_fields(obj, nil) do
+    obj
+  end
+  defp nilify_fields(obj, refs) do
+    obj = Enum.reduce(refs, obj, &nilify_field/2)
+    if empty_ref?(obj) do
+      nil
+    else
+      obj
+    end
+  end
+
+
+  defp nilify_field({name, _props}, obj) do
     value = Map.get(obj, name)
     Map.put(obj, name, nilify(value))
   end
@@ -42,7 +44,7 @@ defmodule Conduit.Nilifier do
     (obj |> Map.from_struct |> Map.values |> Enum.uniq) == [nil]
   end
   defp empty_ref?(obj) when is_list(obj) do
-    Enum.uniq(obj) == [nil]
+    Enum.uniq(obj) in [[nil], []]
   end
 
 end
