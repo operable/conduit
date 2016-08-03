@@ -6,17 +6,20 @@ defmodule Conduit.Validator do
         errors = enforce_required([], data) |> enforce_types(data) |> enforce_enums(data)
         case errors do
           [] ->
-            :ok
+            {:ok, data}
           errors ->
-            %Conduit.ValidationError{value: data, errors: errors}
+            {:error, %Conduit.ValidationError{value: data, errors: errors}}
         end
+      end
+      def validate(nil) do
+        {:error, %Conduit.ValidationError{value: nil, errors: [%Conduit.TypeError{type: __MODULE__, value: nil}]}}
       end
 
       def validate!(data) do
         case validate(data) do
-          :ok ->
+          {:ok, data} ->
             data
-          error ->
+          {:error, error} ->
             raise error
         end
       end
