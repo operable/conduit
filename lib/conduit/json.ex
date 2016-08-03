@@ -49,6 +49,25 @@ defmodule Conduit.JSON do
           end)
         Poison.encode!(data, opts)
       end
+
+      def encode(%__MODULE__{}=data, opts \\ []) do
+        case __MODULE__.validate(data) do
+          {:ok, data} ->
+            data = Enum.reduce(unquote(omit_empty_fields), data,
+            fn(field, data) ->
+              case Map.get(data, field) do
+                nil ->
+                  Map.delete(data, field)
+                _ ->
+                  data
+              end
+            end)
+            Poison.encode(data, opts)
+          error ->
+            error
+        end
+      end
+
     end
   end
 
@@ -85,7 +104,22 @@ defmodule Conduit.JSON do
         |> Conduit.Nilifier.nilify
         |> __MODULE__.validate!
       end
+
+      def decode(data, opts \\ []) when is_binary(data) do
+        opts = [{:as, __MODULE__.__shape__()}|opts]
+        case Poison.decode(data, opts) do
+          {:ok, data} ->
+            case Conduit.Nilifier.nilify(data) do
+              nil ->
+                {:error, %Conduit.TypeError{type: __MODULE__, value: nil}}
+              data ->
+                __MODULE__.validate(data)
+            end
+          error ->
+            error
+        end
+      end
+
     end
   end
-
 end

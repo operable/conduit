@@ -45,7 +45,7 @@ defmodule Conduit.FieldTypes do
   end
   def enforce([object: type], v) when is_map(v) do
     case type.validate(v) do
-      :ok ->
+      {:ok, _} ->
         nil
       error ->
         Conduit.FieldTypeError.new(type: type, value: v, errors: error)

@@ -77,6 +77,10 @@ defmodule Conduit.EncodeTest do
     assert String.contains?(data, "\n")
   end
 
+  test "Empty JSON map raises ValidationError" do
+    assert_raise Conduit.ValidationError, fn -> Group.decode!("{}") end
+  end
+
   test "Empty map fields are decoded" do
     data = Poison.encode!(%{v: %{}, va: [%{}]})
     m = MapMessage.decode!(data)
