@@ -89,4 +89,22 @@ defmodule Conduit.EncodeTest do
     assert MapMessage.encode!(m) == data
   end
 
+  test "Conduit struct is created from valid map" do
+    data = %{first_name: "Wendy", last_name: "Burger", profile: %{nickname: "wendinator"}}
+    {:ok, user} = User.from_map(data)
+    assert user.first_name == "Wendy"
+    assert user.last_name == "Burger"
+    assert user.profile.nickname == "wendinator"
+  end
+
+  test "Conduit struct creation fails with invalid map" do
+    data = %{first_name: "Wendy"}
+    assert_raise Conduit.ValidationError, fn -> User.from_map!(data) end
+  end
+
+  test "Conduit struct creation fails with empty map" do
+    data = %{}
+    assert_raise Conduit.ValidationError, fn -> User.from_map!(data) end
+  end
+
 end

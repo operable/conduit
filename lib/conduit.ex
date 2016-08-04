@@ -41,6 +41,9 @@ defmodule Conduit do
 
       # Generate JSON encoder/decoder logic
       unquote(Conduit.JSON.generate(object_refs, all_fields))
+
+      # Generate Elixir map decoder logic
+      unquote(Conduit.Maps.generate())
     end
   end
 
