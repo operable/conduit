@@ -76,6 +76,10 @@ defmodule Conduit.Test.Support.Messages.ArrayMessage do
 
 end
 
+defmodule Conduit.Test.Support.Messages.MapOrArrayOfMapsMessage do
+  use Conduit
+  field :v, :map_or_array_of_maps, required: true
+end
 
 defmodule Conduit.Test.Support.Messages.User do
 
