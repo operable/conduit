@@ -1,10 +1,5 @@
 defmodule Conduit.Util do
 
-  def get_required_fields(module) do
-    Module.get_attribute(module, :fields)
-    |> Enum.filter(&(Keyword.get(&1, :required)))
-  end
-
   def enum_type_name(value) do
     cond do
       is_binary(value) ->
@@ -18,6 +13,20 @@ defmodule Conduit.Util do
       true ->
         {:invalid, value}
     end
+  end
+
+  def struct_from_map(data, struct_type) do
+    case Poison.encode(data) do
+      {:ok, json} ->
+        struct_type.decode(json)
+      error ->
+        error
+    end
+  end
+
+  def struct_from_map!(data, struct_type) do
+    json = Poison.encode!(data)
+    struct_type.decode!(json)
   end
 
 end
