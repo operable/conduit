@@ -13,6 +13,7 @@ defmodule Conduit.FieldTypes do
   def validate_option!([object: type]) do
     validate_option!(type)
   end
+  def validate_option!(:map_or_array_of_maps), do: :ok
   def validate_option!(type) when is_atom(type) do
     name = Atom.to_string(type)
     # Regex is proxy for valid module name
@@ -35,6 +36,15 @@ defmodule Conduit.FieldTypes do
   def enforce(:bool, v) when is_boolean(v), do: nil
   def enforce(:array, v) when is_list(v), do: nil
   def enforce(:map, v) when is_map(v), do: nil
+
+  def enforce(:map_or_array_of_maps, v) when is_map(v), do: nil
+  def enforce(:map_or_array_of_maps, v) when is_list(v) do
+    if Enum.all?(v, &is_map/1) do
+      nil
+    else
+      Conduit.FieldTypeError.new(type: :map_or_array_of_maps, value: v)
+    end
+  end
   def enforce([array: type], values) when is_list(values) do
     case Enum.reduce_while(values, [], &(enforce_composite_type(type, &1, &2))) do
       [] ->

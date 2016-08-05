@@ -106,4 +106,28 @@ defmodule Conduit.ValidateValuesTest do
 
   end
 
+  test "Validation works with map_or_array_of_maps type" do
+    m = %Messages.MapOrArrayOfMapsMessage{}
+
+    # v is empty
+    assert_raise Conduit.ValidationError, fn -> Messages.MapOrArrayOfMapsMessage.validate!(m) end
+
+    # v is a map
+    m = %{m | v: %{foo: "bar"}}
+    Messages.MapOrArrayOfMapsMessage.validate!(m)
+
+    # v is an empty list
+    m = %{m | v: []}
+    Messages.MapOrArrayOfMapsMessage.validate!(m)
+
+    # v is a list of maps
+    m = %{m | v: [%{foo: "bar"}, %{foo: "baz"}, %{foo: "quux"}]}
+    Messages.MapOrArrayOfMapsMessage.validate!(m)
+
+    # v is a list of non-maps
+    m = %{m | v: ["foo", "bar", "baz"]}
+    assert_raise Conduit.ValidationError, fn -> Messages.MapOrArrayOfMapsMessage.validate!(m) end
+
+  end
+
 end
