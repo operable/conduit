@@ -1,7 +1,5 @@
 # Conduit
 
-[![Build status](https://badge.buildkite.com/43c1e21142842967a3e0cc18f84801c48ebae920e90ece5770.svg?branch=master)](https://buildkite.com/operable/conduit)
-
 Typed and validated JSON encoder and decoder
 
 ## Installation
