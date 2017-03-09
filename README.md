@@ -1,5 +1,7 @@
 # Conduit
 
+[![Build Status](https://travis-ci.org/operable/conduit.svg?branch=master)](https://travis-ci.org/operable/conduit)
+
 Typed and validated JSON encoder and decoder
 
 ## Installation
