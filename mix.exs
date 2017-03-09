@@ -9,6 +9,10 @@ defmodule Conduit.Mixfile do
      build_embedded: Mix.env == :prod,
      consolidate_protocols: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test,
+                         "coveralls.html": :test,
+                         "coveralls.travis": :test],
      deps: deps()]
   end
 
@@ -26,7 +30,8 @@ defmodule Conduit.Mixfile do
 
   defp deps do
     [{:poison, "~> 2.2.0"},
-     {:mix_test_watch, "~> 0.2.6", only: [:test, :dev]}]
+     {:mix_test_watch, "~> 0.2.6", only: [:test, :dev]},
+     {:excoveralls, "~> 0.6", only: :test}]
   end
 
 end

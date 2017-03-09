@@ -8,7 +8,7 @@ before_install:
 
 # Need the job ID in order to upload the Coveralls data
 script:
-  - docker run -it --rm --env="TRAVIS_JOB_ID=${TRAVIS_JOB_ID}" operable/conduit-testing mix test #coveralls.travis
+  - docker run -it --rm --env="TRAVIS_JOB_ID=${TRAVIS_JOB_ID}" operable/conduit-testing mix coveralls.travis
 
 notifications:
   slack:
