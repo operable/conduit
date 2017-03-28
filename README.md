@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/operable/conduit.svg?branch=master)](https://travis-ci.org/operable/conduit)
 [![Coverage Status](https://coveralls.io/repos/github/operable/conduit/badge.svg?branch=master)](https://coveralls.io/github/operable/conduit?branch=master)
+[![Ebert](https://ebertapp.io/github/operable/conduit.svg)](https://ebertapp.io/github/operable/conduit)
 
 Typed and validated JSON encoder and decoder
 
