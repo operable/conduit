@@ -73,7 +73,7 @@ Field properties must be formatted as a keyword list.
   defp prop_option_error(prop) do
     """
 Invalid field property #{inspect [prop]}."
-#{valid_properties_message}
+#{valid_properties_message()}
 """
   end
 

@@ -27,6 +27,9 @@ defmodule Conduit.FieldTypeError do
   defp make_message(fname, type, _value, error=%ValidationError{}) do
     "Field name '#{fname}' of type #{inspect type} failed validation:\n#{error}"
   end
+  defp make_message(fname, type, _value, {:error, error=%ValidationError{}}) do
+    "Field name '#{fname}' of type #{inspect type} failed validation:\n#{error}"
+  end
   defp make_message(fname, _type, _value, errors) when is_list(errors) do
     texts = Enum.map(errors, &("  #{&1}"))
     "Field '#{fname}' failed validation:\n#{Enum.join(texts, "\n")}"
@@ -35,6 +38,7 @@ defmodule Conduit.FieldTypeError do
   defp type_name(value) when is_binary(value), do: "string"
   defp type_name(value) when is_integer(value), do: "integer"
   defp type_name(value) when is_float(value), do: "float"
+  defp type_name(value) when is_boolean(value), do: "boolean"
   defp type_name([]), do: "empty array"
   defp type_name([v|_]), do: "array of #{type_name(v)}"
   defp type_name(v) when is_map(v), do: "object"
