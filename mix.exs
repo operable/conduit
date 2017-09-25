@@ -24,14 +24,14 @@ defmodule Conduit.Mixfile do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test),
-    do: elixirc_paths(:dev) ++ ["test/support", "test/support/messages"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(:test) do
+    elixirc_paths(:dev) ++ ["test/support", "test/support/messages"]
+  end
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    [{:poison, "~> 2.2.0"},
-     {:mix_test_watch, "~> 0.2.6", only: [:test, :dev]},
-     {:excoveralls, "~> 0.6", only: :test}]
+    [{:poison, "~> 3.1"},
+     {:excoveralls, "~> 0.7", only: :test}]
   end
 
 end
